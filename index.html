@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cerca Immagine AI</title>
+  <meta name="theme-color" content="#000000">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+    body { font-family: Arial; text-align: center; background: #000; color: white; padding: 20px; }
+    h1 { color: #00ff00; }
+    input, button { margin: 20px; padding: 15px; font-size: 18px; }
+    img { max-width: 100%; border-radius: 10px; margin: 10px 0; }
+    .results { margin-top: 30px; }
+    a { color: #00ff00; display: block; margin: 15px; }
+  </style>
+</head>
+<body>
+  <h1>Cerca Immagine AI</h1>
+  <p>Scatta o carica una foto e trova dove appare online!</p>
+  
+  <input type="file" id="imageInput" accept="image/*">
+  <button onclick="searchImage()">Cerca Immagine</button>
+  
+  <div id="loading" style="display:none;">Sto cercando in tutto il web...</div>
+  <div id="results" class="results"></div>
+
+  <script>
+    function searchImage() {
+      const file = document.getElementById('imageInput').files[0];
+      if (!file) return alert("Carica un'immagine!");
+      
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('results').innerHTML = '';
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = function() {
+          // Mostra immagine caricata
+          document.getElementById('results').innerHTML += 
+            `<h3>La tua immagine:</h3><img src="${e.target.result}">`;
+
+          // Link diretti a Google, Yandex, TinEye, Bing
+          const base64 = e.target.result.split(',')[1];
+          
+          const engines = [
+            {name: "Google", url: `https://lens.google.com/uploadbyurl?url=${e.target.result}`},
+            {name: "Yandex", url: `https://yandex.com/images/search?rpt=imageview&url=${e.target.result}`},
+            {name: "TinEye", url: `https://tineye.com/search?url=${e.target.result}`},
+            {name: "Bing", url: `https://www.bing.com/images/search?view=detailv2&iss=sbi&form=ANCMS1&imageurl=${e.target.result}`},
+          ];
+
+          document.getElementById('loading').style.display = 'none';
+          
+          engines.forEach(engine => {
+            document.getElementById('results').innerHTML += 
+              `<a href="${engine.url}" target="_blank">
+                Cerca con ${engine.name} →
+              </a>`;
+          });
+        }
+      }
+      reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>
